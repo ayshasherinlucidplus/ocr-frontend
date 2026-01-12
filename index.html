@@ -151,13 +151,30 @@
             border: 1px solid #e0e4ff;
             border-radius: 8px;
             padding: 20px;
-            white-space: pre-wrap;
-            word-wrap: break-word;
             max-height: 400px;
             overflow-y: auto;
-            font-family: 'Courier New', monospace;
+        }
+
+        .result-item {
+            display: flex;
+            padding: 12px;
+            margin-bottom: 8px;
+            background: white;
+            border-radius: 6px;
+            border-left: 4px solid #667eea;
+        }
+
+        .result-label {
+            font-weight: 600;
+            color: #667eea;
+            min-width: 200px;
             font-size: 14px;
-            line-height: 1.6;
+        }
+
+        .result-value {
+            color: #333;
+            font-size: 14px;
+            flex: 1;
         }
 
         .loading {
@@ -202,11 +219,11 @@
 </head>
 <body>
     <div class="container">
-        <h1> OCR Image Processor</h1>
+        <h1>📸 OCR Image Processor</h1>
         <p class="subtitle">Upload an image to extract text using OCR</p>
 
         <div class="upload-area" id="uploadArea">
-            <div class="upload-icon"></div>
+            <div class="upload-icon">📤</div>
             <div class="upload-text">Click to upload or drag and drop</div>
             <div class="upload-hint">PNG, JPG, JPEG (Max 10MB)</div>
             <input type="file" id="fileInput" accept="image/*">
@@ -245,7 +262,7 @@
         const errorDiv = document.getElementById('error');
         const newUploadBtn = document.getElementById('newUploadBtn');
 
-        const API_URL = 'https://aichatbotgeneric.dev-lplusltd.com/ocr';
+        const API_URL = 'http://localhost:8000/ocr';
         let selectedFile = null;
 
         // Click to upload
@@ -340,7 +357,35 @@
         });
 
         function displayResult(result) {
-            resultBox.textContent = typeof result === 'string' ? result : JSON.stringify(result, null, 2);
+            resultBox.innerHTML = '';
+            
+            // Extract the Result array from the response
+            const resultData = result.Result || [];
+            
+            if (resultData.length === 0) {
+                resultBox.innerHTML = '<p style="color: #999; text-align: center;">No data extracted</p>';
+                resultSection.classList.add('active');
+                return;
+            }
+            
+            // Create HTML for each key-value pair
+            resultData.forEach(item => {
+                const resultItem = document.createElement('div');
+                resultItem.className = 'result-item';
+                
+                const label = document.createElement('div');
+                label.className = 'result-label';
+                label.textContent = item.Label;
+                
+                const value = document.createElement('div');
+                value.className = 'result-value';
+                value.textContent = item.Value;
+                
+                resultItem.appendChild(label);
+                resultItem.appendChild(value);
+                resultBox.appendChild(resultItem);
+            });
+            
             resultSection.classList.add('active');
         }
 
